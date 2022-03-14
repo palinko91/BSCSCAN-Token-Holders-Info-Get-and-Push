@@ -1,11 +1,14 @@
 use chrono;
+use dotenv::dotenv;
 use reqwest::StatusCode;
 use scraper::{Html, Selector};
+use std::env;
 
 use std::collections::HashMap;
 use std::fs::{create_dir_all, File};
 use std::io::Write;
 
+mod ftp;
 mod utils;
 
 //Function to extract only the numbers out from the text
@@ -27,8 +30,12 @@ fn save_info(info: &HashMap<String, String>) {
     let dt = chrono::Local::now();
     create_dir_all("./holders").unwrap_or_else(|e| panic!("Error creating dir: {}", e));
     let filename = format!(
-        "./holders/SSI_Holders_{}.json",
-        dt.format("%Y-%m-%d_%H.%M.%S")
+        "{}{}{}{}{}",
+        "./holders/",
+        &env::var("TOKEN_NAME").expect("TOKEN_NAME must be set"),
+        "_Holders_",
+        dt.format("%Y-%m-%d_%H.%M.%S"),
+        ".json"
     );
     let mut writer = File::create(&filename).unwrap();
     for (k, v) in info.iter() {
@@ -80,7 +87,9 @@ async fn web_scrape(url: &str) -> HashMap<String, String> {
 }
 
 fn main() {
-    let url = "https://bscscan.com/token/generic-tokenholders2?m=normal&a=0xacFC95585D80Ab62f67A14C566C1b7a49Fe91167";
+    dotenv().expect("Failed to read .env file");
+    let url = &env::var("TOKEN_LINK").expect("TOKEN_LINK must be set");
     let web_scrape_result = web_scrape(&url);
     save_info(&web_scrape_result);
+    ftp::upload();
 }

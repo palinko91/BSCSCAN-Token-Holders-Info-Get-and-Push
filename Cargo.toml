@@ -12,3 +12,5 @@ scraper = "0.12.0"
 serde = { version = "1.0", features = ["derive"]}
 serde_json = "1.0"
 chrono = "0.4"
+ftp = "3.0.1"
+dotenv = "0.15.0"

@@ -10,5 +10,3 @@ pub fn get_client() -> Client {
 
     client
 }
-
-//FTP client
